@@ -325,7 +325,8 @@ ${gauge} (${score}/100)
   const canSubmit = files.length > 0
 
   return (
-    <div className="min-h-screen bg-[#BACEE0] max-w-[480px] mx-auto flex flex-col font-sans relative">
+    <div className="min-h-screen bg-[#F1F5F9] flex justify-center">
+      <div className="min-h-screen bg-[#BACEE0] w-full max-w-[430px] flex flex-col font-sans relative border-x border-slate-200 shadow-2xl">
       {/* 카톡 상단바 */}
       <header className="bg-[#BACEE0] px-4 pt-4 pb-2 flex items-center justify-between text-gray-800">
         <div className="flex items-center gap-2">
@@ -567,6 +568,7 @@ ${gauge} (${score}/100)
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }
