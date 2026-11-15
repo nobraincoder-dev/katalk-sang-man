@@ -7,7 +7,7 @@ export default function ResultCard({ result, gender }) {
   const cardCategory = isMale ? '카톡 상남자·하남자 판독서' : '카톡 상여자·하여자 판독서'
   const label = (isAlpha ? '상' : '하') + (isMale ? '남자' : '여자')
   const watermarkName = isMale ? '카톡 상남자·하남자 판독기' : '카톡 상여자·하여자 판독기'
-  const handleName = isMale ? '@sang-man-test' : '@sang-woman-test'
+  const domainName = 'katalk-sang-man.vercel.app'
 
   const t = isAlpha
     ? { bg: 'bg-[#111111]', accent: '#FF3B30', text: 'text-[#FF3B30]', sub: 'text-white', box: 'bg-white/5 border-[#FF3B30]/40', glow: '0 0 24px #FF3B30aa' }
@@ -56,7 +56,7 @@ export default function ResultCard({ result, gender }) {
       <div className="pt-1 flex items-center justify-center gap-1.5 opacity-60 text-[10px] text-white tracking-wider">
         <span className="w-1.5 h-1.5 rounded-full bg-[#FEE500]"></span>
         <span className="font-semibold">{watermarkName}</span>
-        <span className="text-[9px] opacity-70">{handleName}</span>
+        <span className="text-[9px] opacity-70 font-mono">{domainName}</span>
       </div>
     </div>
   )
