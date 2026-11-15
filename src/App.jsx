@@ -238,37 +238,53 @@ export default function App() {
     return false
   }
 
-  // 1. 친구/연인에게 결과 공유하기 (Web Share API)
+  // 워들(Wordle) 스타일 이모지 판독 결과표 텍스트 생성
+  const generateWordleSummary = () => {
+    if (!result) return ''
+    const isMale = gender === 'male'
+    const isAlpha = result.type_label === '상'
+    const appTitle = isMale ? '카톡 상남자·하남자 판독기' : '카톡 상여자·하여자 판독기'
+    const emoji = isAlpha ? '😎' : '😭'
+    const trait = (isAlpha ? '상' : '하') + (isMale ? '남자' : '여자') + '력'
+    const score = Math.min(Math.max(Number(result.score) || 0, 0), 100)
+    const filledCount = Math.min(10, Math.max(0, Math.round(score / 10)))
+    const emptyCount = 10 - filledCount
+    const blockEmoji = isAlpha ? '🟥' : '🟦'
+    const gauge = blockEmoji.repeat(filledCount) + '⬛'.repeat(emptyCount)
+
+    return `💥 [${appTitle}]
+${emoji} ${trait} ${score}% | "${result.meme_title}"
+${gauge} (${score}/100)
+
+🔍 결정적 증거 박제:
+"${result.evidence_quote || ''}"
+
+나도 카톡 캡처 올리고 판독받기 👉 https://katalk-sang-man.vercel.app/`
+  }
+
+  // 1. 친구/연인에게 결과 공유하기 (워들 스타일 이모지 텍스트 클립보드 즉시 복사)
   const handleShareResult = async () => {
-    const charged = triggerBonusRecharge()
-    const appTitle = gender === 'male' ? '카톡 상남자·하남자 판독기' : '카톡 상여자·하여자 판독기'
-    const shareData = {
-      title: appTitle,
-      text: `[${appTitle}] 내 판독 결과: "${result?.meme_title}" (${result?.score}%). 너도 테스트해봐!`,
-      url: window.location.href,
+    triggerBonusRecharge()
+    const summaryText = generateWordleSummary()
+
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(summaryText)
+      } else {
+        fallbackCopyText(summaryText)
+      }
+    } catch {
+      fallbackCopyText(summaryText)
     }
 
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData)
-        if (charged) {
-          showToast('공유 완료! 보너스 분석 2회가 충전되었습니다 🎁')
-        }
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          copyToClipboard(window.location.href, charged)
-        }
-      }
-    } else {
-      // 미지원 브라우저는 클립보드 복사로 대체
-      copyToClipboard(window.location.href, charged)
-    }
+    showToast('📋 워들 스타일 판독 결과표가 복사되었어요! 카톡방이나 X·스레드에 바로 붙여넣으세요')
   }
 
   // 2. 주변 하남자/하여자 저격하기 (링크 복사)
   const handleTargetLinkCopy = () => {
     const charged = triggerBonusRecharge()
-    copyToClipboard(window.location.href, charged, true)
+    const targetUrl = 'https://katalk-sang-man.vercel.app/'
+    copyToClipboard(targetUrl, charged, true)
   }
 
   const copyToClipboard = (textToCopy, charged = false, isRoast = false) => {
