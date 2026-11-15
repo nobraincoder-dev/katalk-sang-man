@@ -67,12 +67,12 @@ export default function App() {
     setTotalAllowed(getTotalAllowedCount())
   }
 
-  const showToast = (msg) => {
+  const showToast = (msg, duration = 1500) => {
     setToastMessage(msg)
     window.__currentToast = msg
     setTimeout(() => {
       setToastMessage((cur) => (cur === msg ? null : cur))
-    }, 3200)
+    }, duration)
   }
 
   const addFiles = (list) => {
@@ -277,17 +277,17 @@ ${gauge} (${score}/100)
       fallbackCopyText(summaryText)
     }
 
-    showToast('📋 워들 스타일 판독 결과표가 복사되었어요! 카톡방이나 X·스레드에 바로 붙여넣으세요')
+    showToast('판독 결과가 복사되었어요 📋')
   }
 
   // 2. 주변 하남자/하여자 저격하기 (링크 복사)
   const handleTargetLinkCopy = () => {
-    const charged = triggerBonusRecharge()
+    triggerBonusRecharge()
     const targetUrl = 'https://katalk-sang-man.vercel.app/'
-    copyToClipboard(targetUrl, charged, true)
+    copyToClipboard(targetUrl)
   }
 
-  const copyToClipboard = (textToCopy, charged = false, isRoast = false) => {
+  const copyToClipboard = (textToCopy) => {
     try {
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(textToCopy).catch(() => {
@@ -300,20 +300,7 @@ ${gauge} (${score}/100)
       fallbackCopyText(textToCopy)
     }
 
-    const targetTerm = gender === 'male' ? '하남자' : '하여자'
-    if (isRoast) {
-      showToast(
-        charged
-          ? `링크 복사 완료! 보너스 2회 충전됨 🎁 단톡방이나 주변 ${targetTerm}한테 보내서 팩폭 먹이세요 😈`
-          : `링크 복사 완료! 단톡방이나 주변 ${targetTerm}한테 보내서 팩폭 먹이세요 😈`
-      )
-    } else {
-      showToast(
-        charged
-          ? '링크가 복사되었습니다! 보너스 분석 2회가 충전되었습니다 🎁'
-          : '판독기 링크가 클립보드에 복사되었습니다!'
-      )
-    }
+    showToast('링크가 복사되었어요 🔗')
   }
 
   const fallbackCopyText = (text) => {
@@ -553,11 +540,10 @@ ${gauge} (${score}/100)
         )}
       </main>
 
-      {/* 플로팅 토스트 알림 (중앙 뷰포트 고정) */}
+      {/* 하단 심플 토스트 알림 (1.5초) */}
       {toastMessage && (
-        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-900/95 text-white px-5 py-3.5 rounded-2xl text-xs font-semibold shadow-2xl flex items-center gap-2.5 z-50 pop max-w-[85%] text-center border border-white/15">
-          <CheckCircle2 size={18} className="text-yellow-400 shrink-0" />
-          <span className="leading-relaxed">{toastMessage}</span>
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-gray-900/90 text-white px-4 py-2 rounded-full text-xs font-medium shadow-lg z-50 pop flex items-center justify-center border border-white/10 pointer-events-none whitespace-nowrap">
+          <span>{toastMessage}</span>
         </div>
       )}
 
