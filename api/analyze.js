@@ -150,6 +150,15 @@ export default async function handler(req, res) {
         if (!response.ok) {
           const errBody = await response.text();
           console.warn(`[API Warning] Model ${modelName} returned status ${response.status}:`, errBody.slice(0, 200));
+          if (
+            response.status === 429 ||
+            errBody.includes('RESOURCE_EXHAUSTED') ||
+            errBody.includes('Quota') ||
+            errBody.includes('quota')
+          ) {
+            isRateLimited = true;
+            break;
+          }
           lastError = new Error(`Gemini API [${modelName}] 실패: ${response.status}`);
           continue;
         }
@@ -182,8 +191,8 @@ export default async function handler(req, res) {
     if (isRateLimited) {
       return res.status(429).json({
         code: 429,
-        error: 'RATE_LIMIT_EXCEEDED',
-        message: '지금 전국의 하남자/상남자들이 한꺼번에 몰려 AI가 팩폭을 쉬고 있습니다. 1분 뒤 다시 시도해 주세요!',
+        error: 'RESOURCE_EXHAUSTED',
+        message: '지금 사람들이 너무 많이 몰려 AI 판독기 오늘 무료 한도가 잠시 소진되었습니다! 😅 잠시 후(1분 뒤) 다시 시도하거나 내일 다시 찾아와 주세요.',
       });
     }
 
@@ -194,6 +203,20 @@ export default async function handler(req, res) {
     return res.status(200).json(resultJson);
   } catch (error) {
     console.error('Analyze API Error:', error);
+    const errText = error?.message || '';
+    if (
+      error?.status === 429 ||
+      errText.includes('429') ||
+      errText.includes('RESOURCE_EXHAUSTED') ||
+      errText.includes('Quota') ||
+      errText.includes('quota')
+    ) {
+      return res.status(429).json({
+        code: 429,
+        error: 'RESOURCE_EXHAUSTED',
+        message: '지금 사람들이 너무 많이 몰려 AI 판독기 오늘 무료 한도가 잠시 소진되었습니다! 😅 잠시 후(1분 뒤) 다시 시도하거나 내일 다시 찾아와 주세요.',
+      });
+    }
     return res.status(500).json({
       error: error.message || '분석 중 오류가 발생했습니다.',
     });

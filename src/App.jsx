@@ -153,13 +153,13 @@ export default function App() {
       }
 
       // 429 한도 초과 에러 처리
-      if (response.status === 429 || data?.code === 429) {
+      if (response.status === 429 || data?.code === 429 || data?.error === 'RESOURCE_EXHAUSTED') {
         setPhase('input')
         setErrorModal({
-          title: 'AI 서버 과열 안내 ☕',
+          title: '접속자가 폭주했어요 🔥',
           message:
             data?.message ||
-            '지금 전국의 하남자/상남자들이 한꺼번에 몰려 AI가 팩폭을 쉬고 있습니다. 1분 뒤 다시 시도해 주세요!',
+            '지금 사람들이 너무 많이 몰려 AI 판독기 오늘 무료 한도가 잠시 소진되었습니다! 😅 잠시 후(1분 뒤) 다시 시도하거나 내일 다시 찾아와 주세요.',
         })
         return
       }
@@ -192,6 +192,19 @@ export default function App() {
       let errorMsg = err.message || '알 수 없는 오류가 발생했습니다.'
       if (err.name === 'AbortError') {
         errorMsg = 'AI 분석 응답 시간이 초과되었습니다. 이미지 개수를 줄이거나 잠시 후 다시 시도해주세요.'
+      } else if (
+        err.status === 429 ||
+        errorMsg.includes('429') ||
+        errorMsg.includes('RESOURCE_EXHAUSTED') ||
+        errorMsg.includes('Quota') ||
+        errorMsg.includes('quota')
+      ) {
+        setErrorModal({
+          title: '접속자가 폭주했어요 🔥',
+          message:
+            '지금 사람들이 너무 많이 몰려 AI 판독기 오늘 무료 한도가 잠시 소진되었습니다! 😅 잠시 후(1분 뒤) 다시 시도하거나 내일 다시 찾아와 주세요.',
+        })
+        return
       } else if (errorMsg.includes('GEMINI_API_KEY')) {
         errorMsg = 'GEMINI_API_KEY가 등록되지 않았습니다. .env.local 파일에 키를 입력해주세요.'
       }
